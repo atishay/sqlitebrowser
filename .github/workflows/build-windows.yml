@@ -57,15 +57,15 @@ jobs:
           cache-key-prefix: "cache"
           version: ${{ env.QT_VERSION }}
 
-      - name: Download 'nalgeon/sqlean'
-        run: |
-          if ("${{ matrix.arch }}" -eq "Win32") {
-            gh release download --pattern "sqlean-win-x86.zip" --repo "nalgeon/sqlean"
-            Expand-Archive -Path sqlean-win-x86.zip -DestinationPath .\sqlean
-          } else {
-            gh release download --pattern "sqlean-win-x64.zip" --repo "nalgeon/sqlean"
-            Expand-Archive -Path sqlean-win-x64.zip -DestinationPath .\sqlean
-          }
+      # - name: Download 'nalgeon/sqlean'
+      #   run: |
+      #     if ("${{ matrix.arch }}" -eq "Win32") {
+      #       gh release download --pattern "sqlean-win-x86.zip" --repo "nalgeon/sqlean"
+      #       Expand-Archive -Path sqlean-win-x86.zip -DestinationPath .\sqlean
+      #     } else {
+      #       gh release download --pattern "sqlean-win-x64.zip" --repo "nalgeon/sqlean"
+      #       Expand-Archive -Path sqlean-win-x64.zip -DestinationPath .\sqlean
+      #     }
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
