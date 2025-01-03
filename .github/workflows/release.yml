@@ -37,11 +37,11 @@ jobs:
 
       - run: find target -type f -exec mv -v {} target \;
 
-      - name: Unarchive Windows's build artifacts
-        run: for f in target/*.zip; do unzip -d target/ "$f"; done
+      # - name: Unarchive Windows's build artifacts
+      #   run: for f in target/*.zip; do unzip -d target/ "$f"; done
 
-      - name: Remove archived Windows's build artifacts
-        run: rm -v target/build-artifacts-*.zip
+      # - name: Remove archived Windows's build artifacts
+      #   run: rm -v target/build-artifacts-*.zip
 
       - name: Release
         uses: softprops/action-gh-release@v2
