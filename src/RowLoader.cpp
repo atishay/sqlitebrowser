@@ -79,6 +79,61 @@ std::shared_ptr<sqlite3> RowLoader::getDb () const
     return pDb;
 }
 
+/*
+** Bind parameters on a prepared statement.
+**
+** Parameter bindings are taken from a RAM table of the form:
+**
+**    CREATE TABLE parameters(key TEXT PRIMARY KEY, value)
+**    WITHOUT ROWID;
+**
+** No bindings occur if this table does not exist.  The name of the table
+** begins with "sqlite_" so that it will not collide with ordinary application
+** tables.  The table must be in the RAM.
+*/
+static void bind_prepared_stmt(sqlite3 *db, sqlite3_stmt *pStmt)
+{
+    int nVar;
+    int i;
+    int rc;
+    sqlite3_stmt *pQ = 0;
+
+    nVar = sqlite3_bind_parameter_count(pStmt);
+    if (nVar == 0)
+        return; /* Nothing to do */
+
+    rc = sqlite3_prepare_v2(db,
+                            "SELECT value FROM RAM.parameters"
+                            " WHERE key=?1",
+                            -1, &pQ, 0);
+
+    for (i = 1; i <= nVar; i++)
+    {
+        char zNum[30];
+        const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
+        if (zVar == 0)
+        {
+            sqlite3_snprintf(sizeof(zNum), zNum, "?%d", i);
+            zVar = zNum;
+        }
+        sqlite3_bind_text(pQ, 1, zVar, -1, SQLITE_STATIC);
+        if (rc == SQLITE_OK && pQ && sqlite3_step(pQ) == SQLITE_ROW)
+        {
+            //   sqlite3_bind_value(pStmt, i, sqlite3_column_value(pQ, 0));
+            auto elem = sqlite3_column_text(pQ, 0);
+            sqlite3_bind_text(pStmt, i, (const char *)elem,
+                              -1,
+                              SQLITE_TRANSIENT);
+        }
+        else
+        {
+            sqlite3_bind_null(pStmt, i);
+        }
+        sqlite3_reset(pQ);
+    }
+    sqlite3_finalize(pQ);
+}
+
 int RowLoader::countRows() const
 {
     int retval = -1;
@@ -91,6 +146,7 @@ int RowLoader::countRows() const
         QByteArray utf8Query = query.toUtf8();
         if(sqlite3_prepare_v2(pDb.get(), utf8Query, utf8Query.size(), &stmt, nullptr) == SQLITE_OK)
         {
+            bind_prepared_stmt(pDb.get(), stmt);
             retval = 0;
             while(sqlite3_step(stmt) == SQLITE_ROW)
                 retval++;
@@ -104,6 +160,7 @@ int RowLoader::countRows() const
         sqlite3_stmt* stmt;
         if(sqlite3_prepare_v2(pDb.get(), utf8Query, utf8Query.size(), &stmt, nullptr) == SQLITE_OK)
         {
+            bind_prepared_stmt(pDb.get(), stmt);
             if(sqlite3_step(stmt) == SQLITE_ROW)
                 retval = sqlite3_column_int(stmt, 0);
             sqlite3_finalize(stmt);
@@ -235,6 +292,7 @@ void RowLoader::process (Task & t)
     auto row = t.row_begin;
     if(sqlite3_prepare_v2(pDb.get(), utf8Query, utf8Query.size(), &stmt, nullptr) == SQLITE_OK)
     {
+        bind_prepared_stmt(pDb.get(), stmt);
         while(!t.cancel && sqlite3_step(stmt) == SQLITE_ROW)
         {
             size_t num_columns = static_cast<size_t>(sqlite3_data_count(stmt));

@@ -25,7 +25,16 @@ bool startsWithBom(const QByteArray& data);
 QByteArray removeBom(QByteArray& data);
 
 // Check if a byte array contains an image. Returns the name of the image format for images or a null string for non-image data.
-QString isImageData(const QByteArray& data);
+QString isImageData(const QByteArray &data);
+
+bool isValidJSONB(const QByteArray &data);
+
+bool isSQLScript(const QByteArray &data);
+
+QByteArray JSONBtoJSON(const QByteArray &data);
+
+QString beautify_sql(const QString &sql);
+
 
 QStringList toStringList(const QList<QByteArray>& list);
 
