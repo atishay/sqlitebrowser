@@ -3,6 +3,11 @@ index c040591a..46d57881 100644
 --- a/installer/windows/product.wxs
 +++ b/installer/windows/product.wxs
 @@ -63,7 +63,11 @@
+                     <Directory Id="extensions" Name="extensions">
+                         <Component><File Source="$(var.SQLitePath)\math.dll" /></Component>
+                         <Component><File Source="$(var.SQLitePath)\formats.dll" /></Component>
+                         <Component><File Source="$(var.SQLitePath)\fileio.dll" /></Component>
+                     </Directory>
 +                    <Directory Id="iconengines" Name="iconengines">
 +                        <Component><File Source="$(var.QtPath)\plugins\iconengines\qsvgicon.dll" /></Component>
 +                    </Directory>
@@ -18,7 +23,6 @@ index c040591a..46d57881 100644
                          <Component><File Source="..\..\LICENSE-PLUGINS" /></Component>
                      </Directory>
                      <Component><File Source="$(var.QtPath)\bin\Qt5Concurrent.dll" /></Component>
- 
 @@ -169,6 +179,7 @@
              <!-- Bearer -->
              <ComponentRef Id="qgenericbearer.dll" />
