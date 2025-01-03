@@ -114,7 +114,6 @@ jobs:
 
       - name: Patch WiX Toolset Variables
         run: |
-          git apply .github\patch\product.wxs.patch
           git apply .github\patch\translations.wxs.patch
           git apply .github\patch\variables.wxi.patch
 
