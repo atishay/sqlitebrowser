@@ -1,4 +1,5 @@
 #include "Data.h"
+#include <optional>
 
 #include <QBuffer>
 #include <QDateTime>
@@ -9,6 +10,17 @@
 #include <QRegularExpression>
 
 #include <algorithm>
+
+#include <QProcess>
+#include <QString>
+#include <QStringList>
+#include <QTemporaryFile>
+#include <QVector>
+#include <QDir>
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include <sstream>
 
 // Note that these aren't all possible BOMs. But they are probably the most common ones.
 // The size is needed at least for the ones with character zero in them.
@@ -231,4 +243,364 @@ void removeCommentsFromQuery(QString& query)
         // Also remove any remaining whitespace at the end of each line
         query.replace(QRegularExpression("[ \t]+\n"), "\n");
     }
+}
+
+// JSONB Support
+
+// Enum for element types
+enum ElementType {
+    NULL_TYPE = 0,
+    TRUE_TYPE = 1,
+    FALSE_TYPE = 2,
+    INT = 3,
+    INT5 = 4,
+    FLOAT = 5,
+    FLOAT5 = 6,
+    TEXT = 7,
+    TEXTJ = 8,
+    TEXT5 = 9,
+    TEXTRAW = 10,
+    ARRAY = 11,
+    OBJECT = 12,
+    RESERVED_13 = 13,
+    RESERVED_14 = 14,
+    RESERVED_15 = 15
+};
+
+// Function declarations
+QByteArray decodeElement(const QByteArray& data, int& offset);
+QByteArray decodeString(const QByteArray& data, int& offset, uint32_t payloadSize);
+QByteArray decodeArray(const QByteArray& data, int& offset, uint32_t payloadSize);
+QByteArray decodeObject(const QByteArray& data, int& offset, uint32_t payloadSize);
+bool isValidJSONB(const QByteArray& data);
+
+// Function to decode JSONB to JSON
+QByteArray JSONBtoJSON(const QByteArray& data) {
+    if (!isValidJSONB(data)) {
+        throw std::runtime_error("Invalid JSONB format");
+    }
+
+    int offset = 0;
+    return decodeElement(data, offset);
+}
+
+// Function to check if the data is valid JSONB
+bool isValidJSONB(const QByteArray& data) {
+    if (data.isEmpty()) return false;
+
+    int offset = 0;
+    try {
+        decodeElement(data, offset);
+    } catch (...) {
+        return false;
+    }
+
+    return offset == data.size();
+}
+
+// Function to decode big-endian integers from QByteArray
+uint32_t decodeBigEndianInt(const QByteArray& data, int& offset, int size) {
+    uint32_t value = 0;
+    for (int i = 0; i < size; ++i) {
+        value = (value << 8) | (static_cast<uint8_t>(data[offset + i]));
+    }
+    offset += size;
+    return value;
+}
+
+// Decode functions for different JSONB types
+QByteArray decodeString(const QByteArray& data, int& offset, uint32_t payloadSize) {
+    QByteArray result = data.mid(offset, payloadSize);
+    result.replace("\"", "\\\"");  // Escape quotes
+    offset += payloadSize;
+    return result;
+}
+
+QByteArray decodeArray(const QByteArray& data, int& offset, uint32_t payloadSize) {
+    QByteArray result = "[";
+    int startOffset = offset;
+
+    bool first = true;
+    while (offset < startOffset + payloadSize) {
+        if (!first) {
+            result.append(",");
+        }
+        first = false;
+
+        QByteArray element = decodeElement(data, offset);
+        result.append(element);
+    }
+
+    result.append("]");
+    return result;
+}
+
+QByteArray decodeObject(const QByteArray& data, int& offset, uint32_t payloadSize) {
+    QByteArray result = "{";
+    int startOffset = offset;
+
+    bool first = true;
+    while (offset < startOffset + payloadSize) {
+        if (!first) {
+            result.append(",");
+        }
+        first = false;
+
+        QByteArray key = decodeElement(data, offset);
+        QByteArray value = decodeElement(data, offset);
+
+        result.append(key).append(":").append(value);
+    }
+
+    result.append("}");
+    return result;
+}
+
+QByteArray decodeElement(const QByteArray& data, int& offset) {
+    if (offset >= data.size()) {
+        throw std::runtime_error("Invalid JSONB: Offset out of bounds");
+    }
+
+    uint8_t header = data[offset++];
+    uint8_t type = header & 0x0F;
+    uint8_t sizeIndicator = header >> 4;
+
+    uint32_t payloadSize = 0;
+    switch (sizeIndicator) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            case 4:
+                case 5:
+                    case 6:
+                        case 7:
+                            case 8:
+                                case 9:
+                                    case 10:
+                                        case 11:
+            payloadSize = sizeIndicator;
+            break;
+        case 12:
+            payloadSize = decodeBigEndianInt(data, offset, 1);
+            break;
+        case 13:
+            payloadSize = decodeBigEndianInt(data, offset, 2);
+            break;
+        case 14:
+            payloadSize = decodeBigEndianInt(data, offset, 4);
+            break;
+        case 15:
+            payloadSize = decodeBigEndianInt(data, offset, 8);
+            break;
+    }
+
+    QByteArray result;
+
+    switch (type) {
+        case NULL_TYPE:
+            result = "null";
+            break;
+        case TRUE_TYPE:
+            result = "true";
+            break;
+        case FALSE_TYPE:
+            result = "false";
+            break;
+        case INT:
+        case INT5:
+        case FLOAT:
+        case FLOAT5:
+            result = data.mid(offset, payloadSize);
+            offset += payloadSize;
+            break;
+        case TEXT:
+        case TEXTJ:
+        case TEXT5:
+        case TEXTRAW:
+            result = "\"" + decodeString(data, offset, payloadSize) + "\"";
+            break;
+        case ARRAY:
+            result = decodeArray(data, offset, payloadSize);
+            break;
+        case OBJECT:
+            result = decodeObject(data, offset, payloadSize);
+            break;
+        case RESERVED_13:
+        case RESERVED_14:
+        case RESERVED_15:
+            // Handle reserved types gracefully, currently just printing a message
+            std::cerr << "Reserved type encountered: " << type << std::endl;
+            result = ""; // Modify as per your handling needs
+            break;
+        default:
+            throw std::runtime_error("Invalid JSONB: Unknown type");
+    }
+
+    return result;
+}
+
+// Function to convert a QByteArray to lowercase
+QByteArray toLowerCase(const QByteArray &data) { return data.toLower(); }
+
+// Function to check if a QByteArray contains any of the SQL keywords
+bool isSQLScript(const QByteArray &data) {
+  // List of common SQL keywords
+  QStringList sqlKeywords = {
+      "select",    "insert",   "update", "delete", "create", "drop",
+      "alter",     "where",    "from",   "join",   "into",   "values",
+      "table",     "database", "set",    "index",  "view",   "trigger",
+      "procedure", "distinct", "group",  "order",  "by",     "limit",
+      "having",    "union"};
+
+  // Convert the QByteArray to a lowercase string
+  QByteArray lowerCaseData = toLowerCase(data);
+
+  // Check if any SQL keyword is present in the text
+  for (const QString &keyword : sqlKeywords) {
+    if (lowerCaseData.contains(keyword.toUtf8())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+#ifdef Q_OS_WIN
+    const QString checkSqlfluffCommand = "where sqlfluff";
+#else
+    const QString checkSqlfluffCommand = "command -v sqlfluff";
+#endif
+
+bool isSqlfluffInstalled() {
+    static std::optional<bool> cache = std::nullopt;
+    if (cache != std::nullopt) {
+    return *cache;
+    }
+    QProcess process;
+    process.start(checkSqlfluffCommand);
+    process.waitForFinished();
+    QByteArray output = process.readAllStandardOutput();
+    QByteArray error = process.readAllStandardError();
+    int exitCode = process.exitCode();
+
+    qDebug() << "Installation check output:" << output;
+    qDebug() << "Installation check error:" << error;
+    qDebug() << "Installation check exit code:" << exitCode;
+
+    // Check if the output is not empty and there are no errors
+    cache = exitCode == 0 && !output.isEmpty();
+    return *cache;
+}
+
+QString formatSqlWithSqlfluff(const QString& sqlQuery) {
+    QString formattedQuery;
+
+    // Create a temporary file to store the SQL query
+    QTemporaryFile tempFile(QDir::tempPath() + QDir::separator() +
+                            "XXXXXX.sql");
+    if (tempFile.open()) {
+        QTextStream out(&tempFile);
+        out << sqlQuery;
+        tempFile.close();
+
+        QStringList arguments;
+        arguments << "fix" << "--dialect" << "sqlite" << tempFile.fileName();
+
+        QProcess process;
+        process.start("sqlfluff", arguments);
+        process.waitForStarted();
+        process.waitForFinished();
+
+        QByteArray output = process.readAllStandardOutput();
+        QByteArray error = process.readAllStandardError();
+
+        if (!error.isEmpty()) {
+            qWarning() << "sqlfluff format error:" << error;
+        } else {
+            QFile resultFile(tempFile.fileName());
+            qWarning() << tempFile.fileName();
+            if (resultFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&resultFile);
+                formattedQuery = in.readAll().trimmed();
+                resultFile.close();
+            } else {
+                qWarning() << "Failed to open temporary file for reading.";
+            }
+        }
+
+        // Remove the temporary file
+        tempFile.remove();
+    } else {
+        qWarning() << "Failed to create temporary file.";
+    }
+
+    return formattedQuery;
+}
+// Function to split a QString into tokens based on delimiters
+QVector<QString> split(const QString &str) {
+  QVector<QString> tokens;
+  QStringList parts =
+      str.split(QRegExp("((?=\\()|\\s|(?=;))"), QString::SkipEmptyParts);
+  for (const auto &part : parts) {
+    tokens.push_back(part.trimmed());
+  }
+  return tokens;
+}
+
+// Function to beautify an SQL query stored in a QString
+QString beautify_sql(const QString& sql) {
+    if (sql.count("\n") >= 2) {
+        return sql; // Do not beautify if two newlines already exist
+    }
+
+//   if (isSqlfluffInstalled()) {
+//        auto str = formatSqlWithSqlfluff(sql);
+//        if (!str.isEmpty()) {
+//            return str;
+//        }
+//   }
+
+    QStringList keywords = {
+        "SELECT", "FROM", "WHERE", "ORDER BY", "GROUP BY", "INSERT INTO", "VALUES",
+        "UPDATE", "SET", "DELETE FROM", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "THEN", "END",
+        "OUTER JOIN", "ON", "AND", "OR", "json_extract"
+    };
+
+    QVector<QString> tokens = split(sql);
+
+    QString beautified_sql;
+    int indent_level = 0;
+    const QString indent = "    ";
+
+    for (const auto& token : tokens) {
+        QString upper_token = token.toUpper();
+
+        if (keywords.contains(upper_token)) {
+            beautified_sql += "\n";
+            for (int i = 0; i < indent_level; ++i) {
+                beautified_sql += indent;
+            }
+        }
+
+        if (token == ";") {
+            beautified_sql = beautified_sql.trimmed() + token;
+            beautified_sql += "\n\n";
+            indent_level = 0; // Reset indentation after semi-colon
+        } else {
+            beautified_sql += token + " ";
+            if (token == "(") {
+                beautified_sql += "\n";
+                indent_level++;
+            } else if (token == ")") {
+                beautified_sql += "\n";
+                indent_level--;
+                for (int i = 0; i < indent_level; ++i) {
+                    beautified_sql += indent;
+                }
+            }
+        }
+    }
+
+    return beautified_sql;
 }
