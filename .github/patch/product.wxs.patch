@@ -8,7 +8,6 @@ index c040591a..46d57881 100644
                          <Component><File Source="$(var.SQLitePath)\formats.dll" /></Component>
 -                        <Component><File Source="$(var.SQLitePath)\fileio.dll" /></Component>
 +                        <!-- <Component><File Source="$(var.SQLitePath)\fileio.dll" /></Component> -->
-+                        <Component><File Source="$(var.SqleanPath)\sqlean.dll" /></Component>
 +                    </Directory>
 +                    <Directory Id="iconengines" Name="iconengines">
 +                        <Component><File Source="$(var.QtPath)\plugins\iconengines\qsvgicon.dll" /></Component>
@@ -37,7 +36,7 @@ index c040591a..46d57881 100644
 +                    <ComponentRef Id="sqlean.dll" />
                  </Feature>
              </Feature>
- 
+
 @@ -169,6 +179,7 @@
              <!-- Bearer -->
              <ComponentRef Id="qgenericbearer.dll" />

@@ -102,10 +102,8 @@
                         <Component><File Id="libcrypto.dll" Source="$(var.OpenSSLPath)\libcrypto-1_1.dll" /></Component>
                         <Component><File Id="libssl.dll" Source="$(var.OpenSSLPath)\libssl-1_1.dll" /></Component>
                     <?endif?>
-                    <Component><File Source="$(var.SQLCipherPath)\sqlcipher.dll" /></Component>
                     <Component><File Source="$(var.SQLitePath)\sqlite3.dll" /></Component>
                     <Component><File Source="$(var.SQLiteExePath)\DB Browser for SQLite.exe" Checksum="yes" /></Component>
-                    <Component><File Source="$(var.SQLCipherExePath)\DB Browser for SQLCipher.exe" Checksum="yes" /></Component>
                 </Directory>
             </Directory>
             <Directory Id="DesktopFolder">
@@ -114,22 +112,12 @@
                     <Shortcut Id="SLDSC" Name="DB Browser (SQLite)" Description="$(var.AppComments)" Target="[INSTALLDIR]DB Browser for SQLite.exe" WorkingDirectory="INSTALLDIR" />
                     <RegistryValue Root="HKLM" Key="Software\$(var.Name)" Name="SQLiteDesktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
                 </Component>
-                <Component Id="SQLCipherDesktopShortcut" Transitive="yes">
-                    <Condition>SHORTCUT_SQLCIPHER_DESKTOP</Condition>
-                    <Shortcut Id="SCDSC" Name="DB Browser (SQLCipher)" Description="$(var.AppComments)" Target="[INSTALLDIR]DB Browser for SQLCipher.exe" WorkingDirectory="INSTALLDIR" />
-                    <RegistryValue Root="HKLM" Key="Software\$(var.Name)" Name="SQLCipherDesktopShortcut" Type="integer" Value="1" KeyPath="yes"/>
-                </Component>
             </Directory>
             <Directory Id="ProgramMenuFolder">
                 <Component Id="SQLiteProgramMenuShortcut" Transitive="yes">
                     <Condition>SHORTCUT_SQLITE_PROGRAMMENU</Condition>
                     <Shortcut Id="SLPMSC" Name="DB Browser (SQLite)" Description="$(var.AppComments)" Target="[INSTALLDIR]DB Browser for SQLite.exe" WorkingDirectory="INSTALLDIR" />
                     <RegistryValue Root="HKLM" Key="Software\$(var.Name)" Name="SQLiteProgramMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
-                </Component>
-                <Component Id="SQLCipherProgramMenuShortcut" Transitive="yes">
-                    <Condition>SHORTCUT_SQLCIPHER_PROGRAMMENU</Condition>
-                    <Shortcut Id="SCPMSC" Name="DB Browser (SQLCipher)" Description="$(var.AppComments)" Target="[INSTALLDIR]DB Browser for SQLCipher.exe" WorkingDirectory="INSTALLDIR" />
-                    <RegistryValue Root="HKLM" Key="Software\$(var.Name)" Name="SQLCipherProgramMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
                 </Component>
             </Directory>
         </Directory>
@@ -160,8 +148,6 @@
             <!-- Shortcuts -->
             <ComponentRef Id="SQLiteDesktopShortcut" />
             <ComponentRef Id="SQLiteProgramMenuShortcut" />
-            <ComponentRef Id="SQLCipherDesktopShortcut" />
-            <ComponentRef Id="SQLCipherProgramMenuShortcut" />
 
             <!-- Translations -->
             <ComponentGroupRef Id="TranslationsGroup" />
@@ -199,12 +185,10 @@
             <!-- OpenSSL -->
             <ComponentRef Id="libcrypto.dll" />
             <ComponentRef Id="libssl.dll" />
-            <!-- SQLite & SQLCipher -->
-            <ComponentRef Id="sqlcipher.dll" />
+            <!-- SQLite -->
             <ComponentRef Id="sqlite3.dll" />
             <!-- Application -->
             <ComponentRef Id="DB_Browser_for_SQLite.exe" />
-            <ComponentRef Id="DB_Browser_for_SQLCipher.exe" />
         </Feature>
 
     <!-- ============================================= Installation UI ============================================= -->
@@ -233,12 +217,6 @@
             </Property>
             <Property Id="SHORTCUT_SQLITE_PROGRAMMENU" Secure="yes" Value="true">
                 <RegistrySearch Id="RS_SC_SL_PM" Root="HKLM" Key="Software\$(var.Name)" Name="SQLiteProgramMenuShortcut" Type="raw" />
-            </Property>
-            <Property Id="SHORTCUT_SQLCIPHER_DESKTOP" Secure="yes">
-                <RegistrySearch Id="RS_SC_SC_DT" Root="HKLM" Key="Software\$(var.Name)" Name="SQLCipherDesktopShortcut" Type="raw" />
-            </Property>
-            <Property Id="SHORTCUT_SQLCIPHER_PROGRAMMENU" Secure="yes" Value="true">
-                <RegistrySearch Id="RS_SC_SC_PM" Root="HKLM" Key="Software\$(var.Name)" Name="SQLCipherProgramMenuShortcut" Type="raw" />
             </Property>
 
             <!-- Optional text, shown at the end of installation -->
