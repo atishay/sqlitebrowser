@@ -131,6 +131,8 @@
             <!-- Shortcuts -->
             <ComponentRef Id="SQLiteDesktopShortcut" />
             <ComponentRef Id="SQLiteProgramMenuShortcut" />
+            <ComponentRef Id="SQLCipherDesktopShortcut" />
+            <ComponentRef Id="SQLCipherProgramMenuShortcut" />
 
             <!-- Translations -->
             <ComponentGroupRef Id="TranslationsGroup" />
