@@ -15,7 +15,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2019]
-        arch: ["Win32", "Win64"]
+        arch: ["Win64"]
+        # Disable windows 32 bit
+        # arch: ["Win32", "Win64"]
     env:
       GH_TOKEN: ${{ github.token }}
       OPENSSL_VERSION: 1.1.1.2100
