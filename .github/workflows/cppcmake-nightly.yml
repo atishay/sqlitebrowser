@@ -1,4 +1,4 @@
-name: Ad Hoc GSDK Builds
+name: Ad Hoc Custom Builds
 
 on:
   workflow_dispatch:
