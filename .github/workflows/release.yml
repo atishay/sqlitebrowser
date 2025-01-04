@@ -8,7 +8,7 @@ on:
         type: boolean
 
 env:
-  tag_name: ${{ inputs.NIGHTLY == true && 'nightly' || 'continuous' }}
+  tag_name: ${{ github.run_number }}
 
 jobs:
   release:

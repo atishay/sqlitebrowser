@@ -16,13 +16,7 @@ set(CMAKE_AUTOUIC ON)
 add_executable(${PROJECT_NAME})
 
 
-if(QT_MAJOR STREQUAL "Qt5")
-    set(CMAKE_CXX_STANDARD 14)
-elseif(QT_MAJOR STREQUAL "Qt6")
-    set(CMAKE_CXX_STANDARD 17)
-else()
-    message(FATAL_ERROR "Uknown Qt Version: ${QT_MAJOR}")
-endif()
+set(CMAKE_CXX_STANDARD 23)
 
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
