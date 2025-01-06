@@ -74,61 +74,6 @@ void RunSql::stop()
     cv.notify_all();
 }
 
-/*
-** Bind parameters on a prepared statement.
-**
-** Parameter bindings are taken from a RAM table of the form:
-**
-**    CREATE TABLE parameters(key TEXT PRIMARY KEY, value)
-**    WITHOUT ROWID;
-**
-** No bindings occur if this table does not exist.  The name of the table
-** begins with "sqlite_" so that it will not collide with ordinary application
-** tables.  The table must be in the RAM.
-*/
-static void bind_prepared_stmt(sqlite3 *db, sqlite3_stmt *pStmt)
-{
-    int nVar;
-    int i;
-    int rc;
-    sqlite3_stmt *pQ = 0;
-
-    nVar = sqlite3_bind_parameter_count(pStmt);
-    if (nVar == 0)
-        return; /* Nothing to do */
-
-    rc = sqlite3_prepare_v2(db,
-                            "SELECT value FROM RAM.parameters"
-                            " WHERE key=?1",
-                            -1, &pQ, 0);
-
-    for (i = 1; i <= nVar; i++)
-    {
-        char zNum[30];
-        const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
-        if (zVar == 0)
-        {
-            sqlite3_snprintf(sizeof(zNum), zNum, "?%d", i);
-            zVar = zNum;
-        }
-        sqlite3_bind_text(pQ, 1, zVar, -1, SQLITE_STATIC);
-        if (rc == SQLITE_OK && pQ && sqlite3_step(pQ) == SQLITE_ROW)
-        {
-            //   sqlite3_bind_value(pStmt, i, sqlite3_column_value(pQ, 0));
-            auto elem = sqlite3_column_text(pQ, 0);
-            sqlite3_bind_text(pStmt, i, (const char *)elem,
-                              -1,
-                              SQLITE_TRANSIENT);
-        }
-        else
-        {
-            sqlite3_bind_null(pStmt, i);
-        }
-        sqlite3_reset(pQ);
-    }
-    sqlite3_finalize(pQ);
-}
-
 bool RunSql::executeNextStatement()
 {
     std::unique_lock<std::mutex> lk(m);
@@ -147,7 +92,6 @@ bool RunSql::executeNextStatement()
     acquireDbAccess();
     sqlite3_stmt* vm;
     int sql3status = sqlite3_prepare_v2(pDb.get(), tail, tail_length, &vm, &tail);
-    bind_prepared_stmt(pDb.get(), vm);
     QString executed_query = QString::fromUtf8(qbegin, static_cast<int>(tail - qbegin)).trimmed();
     int tail_length_before = tail_length;
     tail_length -= static_cast<int>(tail - qbegin);

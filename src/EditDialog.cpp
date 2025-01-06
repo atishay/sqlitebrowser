@@ -243,7 +243,6 @@ void EditDialog::loadData(const QByteArray& bArrdata)
         }
         break;
 
-    case SQL:
     case Text:
     case RtlText:
     case JSON:
@@ -275,40 +274,8 @@ void EditDialog::loadData(const QByteArray& bArrdata)
             setDataInBuffer(bArrdata, SciBuffer);
 
             break;
-        }
+       }
         break;
-
-    case JSONB:
-        // Can be stored in anything but image.
-        // We swap the data in text editors to be the JSON data, and the hex editor to be the binary data.
-
-      sciEdit->clearTextInMargin();
-
-      switch (editMode) {
-      case TextEditor:
-      case JsonEditor:
-      case XmlEditor:
-      case SqlEvaluator:
-        setDataInBuffer(JSONBtoJSON(bArrdata), SciBuffer);
-        break;
-      case RtlTextEditor:
-        setDataInBuffer(JSONBtoJSON(bArrdata), QtBuffer);
-        break;
-      case HexEditor:
-        setDataInBuffer(bArrdata, HexBuffer);
-        break;
-      case ImageEditor:
-        // The image viewer cannot hold data nor display text.
-
-        // Clear any image from the image viewing widget
-        imageEdit->resetImage();
-
-        // Load the text into the text editor
-        setDataInBuffer(bArrdata, SciBuffer);
-
-        break;
-      }
-      break;
 
     case Image:
         // Image data is kept in the hex widget, mainly for safety.  If we
@@ -379,7 +346,7 @@ void EditDialog::loadData(const QByteArray& bArrdata)
         break;
 
     default:
-        // TODO: JSONB can be converted to JSON and displayed in the JSON editor
+
         // The data seems to be general binary data, which is always loaded
         // into the hex widget (the only safe place for it)
 
@@ -754,38 +721,18 @@ void EditDialog::setDataInBuffer(const QByteArray& bArrdata, DataSources source)
     case SciBuffer:
         switch (sciEdit->language()) {
         case DockTextEdit::PlainText:
-        {
-            // Load the text into the text editor, remove BOM first if there is one
-            QByteArray dataWithoutBom = bArrdata;
-            removedBom = removeBom(dataWithoutBom);
-
-            textData = QString::fromUtf8(dataWithoutBom.constData(),
-                                         dataWithoutBom.size());
-            sciEdit->setText(textData);
-
-            // Select all of the text by default (this is useful for simple text data that we usually edit as a whole)
-            if (sciEdit->language() != DockTextEdit::SQL && !isReadOnly)
-              sciEdit->selectAll();
-            sciEdit->setEnabled(true);
-            break;
-        }
         case DockTextEdit::SQL:
         {
             // Load the text into the text editor, remove BOM first if there is one
             QByteArray dataWithoutBom = bArrdata;
             removedBom = removeBom(dataWithoutBom);
 
-            textData = QString::fromUtf8(dataWithoutBom.constData(),
-                                         dataWithoutBom.size());
-            if (mustIndentAndCompact) {
-              sciEdit->setText(beautify_sql(textData));
-            } else {
-              sciEdit->setText(textData);
-            }
+            textData = QString::fromUtf8(dataWithoutBom.constData(), dataWithoutBom.size());
+            sciEdit->setText(textData);
 
             // Select all of the text by default (this is useful for simple text data that we usually edit as a whole)
-            if (sciEdit->language() != DockTextEdit::SQL && !isReadOnly)
-              sciEdit->selectAll();
+            if (!isReadOnly)
+                sciEdit->selectAll();
             sciEdit->setEnabled(true);
             break;
         }
@@ -1009,19 +956,12 @@ int EditDialog::checkDataType(const QByteArray& bArrdata) const
         auto json_parse_result = json::parse(cellData, nullptr, false);
         if(!json_parse_result.is_discarded() && !json_parse_result.is_number())
             return JSON;
-        else if (isSQLScript(cellData)) {
-            return SQL;
-        } else {
+        else {
             if (containsRightToLeft(QString::fromUtf8(cellData)))
                 return RtlText;
             else
                 return Text;
         }
-    }
-
-    // Check if it is JSONB
-    if (isValidJSONB(cellData)) {
-        return JSONB;
     }
 
     // It's none of the above, so treat it as general binary data
@@ -1095,7 +1035,6 @@ void EditDialog::setReadOnly(bool ro)
 void EditDialog::switchEditorMode(bool autoSwitchForType)
 {
     if (autoSwitchForType) {
-        // TODO: JSONB
         // Switch automatically the editing mode according to the detected data.
         switch (dataType) {
         case Image:
@@ -1112,15 +1051,11 @@ void EditDialog::switchEditorMode(bool autoSwitchForType)
        case RtlText:
             ui->comboMode->setCurrentIndex(RtlTextEditor);
             break;
-        case JSONB:
         case JSON:
             ui->comboMode->setCurrentIndex(JsonEditor);
             break;
         case XML:
             ui->comboMode->setCurrentIndex(XmlEditor);
-            break;
-        case SQL:
-            ui->comboMode->setCurrentIndex(SqlEvaluator);
             break;
         }
     }

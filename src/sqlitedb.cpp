@@ -234,8 +234,7 @@ bool DBBrowserDB::open(const QString& db, bool readOnly)
 
         // Register REGEXP function
         if(Settings::getValue("extensions", "disableregex").toBool() == false)
-            sqlite3_create_function(_db, "REGEXP", 2, SQLITE_UTF8, nullptr,
-                                    regexp, nullptr, nullptr);
+            sqlite3_create_function(_db, "REGEXP", 2, SQLITE_UTF8, nullptr, regexp, nullptr, nullptr);
 
         // Register our internal helper function for putting multiple values into a single column
         sqlite3_create_function_v2(
@@ -247,7 +246,8 @@ bool DBBrowserDB::open(const QString& db, bool readOnly)
             sqlite_make_single_value,
             nullptr,
             nullptr,
-            nullptr);
+            nullptr
+        );
 
         // Check if file is read only. In-memory databases are never read only
         if(db == ":memory:")
@@ -1101,49 +1101,6 @@ bool DBBrowserDB::executeSQL(const std::string& statement, bool dirtyDB, bool lo
     }
 }
 
-static void bind_prepared_stmt(sqlite3 *db, sqlite3_stmt *pStmt)
-{
-    int nVar;
-    int i;
-    int rc;
-    sqlite3_stmt *pQ = 0;
-
-    nVar = sqlite3_bind_parameter_count(pStmt);
-    if (nVar == 0)
-        return; /* Nothing to do */
-
-    rc = sqlite3_prepare_v2(db,
-                            "SELECT value FROM RAM.parameters"
-                            " WHERE key=?1",
-                            -1, &pQ, 0);
-
-    for (i = 1; i <= nVar; i++)
-    {
-        char zNum[30];
-        const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
-        if (zVar == 0)
-        {
-            sqlite3_snprintf(sizeof(zNum), zNum, "?%d", i);
-            zVar = zNum;
-        }
-        sqlite3_bind_text(pQ, 1, zVar, -1, SQLITE_STATIC);
-        if (rc == SQLITE_OK && pQ && sqlite3_step(pQ) == SQLITE_ROW)
-        {
-            //   sqlite3_bind_value(pStmt, i, sqlite3_column_value(pQ, 0));
-            auto elem = sqlite3_column_text(pQ, 0);
-            sqlite3_bind_text(pStmt, i, (const char *)elem,
-                              -1,
-                              SQLITE_TRANSIENT);
-        }
-        else
-        {
-            sqlite3_bind_null(pStmt, i);
-        }
-        sqlite3_reset(pQ);
-    }
-    sqlite3_finalize(pQ);
-}
-
 bool DBBrowserDB::executeMultiSQL(QByteArray query, bool dirty, bool log)
 {
     waitForDbRelease();
@@ -1245,7 +1202,6 @@ bool DBBrowserDB::executeMultiSQL(QByteArray query, bool dirty, bool log)
         // Execute next statement
         if(sqlite3_prepare_v2(_db, tail, static_cast<int>(tail_end - tail + 1), &vm, &tail) == SQLITE_OK)
         {
-            bind_prepared_stmt(_db, vm);
             switch(sqlite3_step(vm))
             {
             case SQLITE_OK:
@@ -1305,7 +1261,6 @@ QByteArray DBBrowserDB::querySingleValueFromDb(const std::string& sql, bool log,
     sqlite3_stmt* stmt;
     if(sqlite3_prepare_v2(_db, sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr) == SQLITE_OK)
     {
-        bind_prepared_stmt(_db, stmt);
         // Execute the statement. We distinguish three types of results:
         // SQLITE_ROW in case some data was returned from the database. This data is then used as a return value.
         // SQLITE_DONE in case the statement executed successfully but did not return any data. We do nothing in this case, leaving the return value empty.
@@ -1354,7 +1309,6 @@ bool DBBrowserDB::getRow(const sqlb::ObjectIdentifier& table, const QString& row
     bool ret = false;
     if(sqlite3_prepare_v2(_db, query.c_str(), static_cast<int>(query.size()), &stmt, nullptr) == SQLITE_OK)
     {
-        bind_prepared_stmt(_db, stmt);
         // even this is a while loop, the statement should always only return 1 row
         while(sqlite3_step(stmt) == SQLITE_ROW)
         {
@@ -1573,7 +1527,6 @@ bool DBBrowserDB::updateRecord(const sqlb::ObjectIdentifier& table, const std::s
     if(sqlite3_prepare_v2(_db, sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr) != SQLITE_OK)
         success = 0;
     if(success == 1) {
-        bind_prepared_stmt(_db, stmt);
         if(force_type == SQLITE_BLOB)
         {
             if(sqlite3_bind_blob(stmt, 1, rawValue, value.length(), SQLITE_STATIC))

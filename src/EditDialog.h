@@ -82,8 +82,6 @@ private:
         Null,
         Text,
         JSON,
-        JSONB,
-        SQL,
         SVG,
         XML,
         RtlText

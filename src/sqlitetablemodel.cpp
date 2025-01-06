@@ -350,14 +350,6 @@ QVariant SqliteTableModel::data(const QModelIndex &index, int role) const
         if(data.isNull())
         {
             return m_nullText;
-        } else if(isBinary(data) && isValidJSONB(data)) {
-            auto string = "JSONB: " + JSONBtoJSON(data);
-            if (string.length() > m_symbolLimit) {
-                // Add "..." to the end of truncated strings
-                return decode(string.left(m_symbolLimit).append(" ..."));
-            } else {
-                return decode(string);
-            }
         } else if(isBinary(data)) {
             return m_blobText;
         } else {
