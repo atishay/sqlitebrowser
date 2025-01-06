@@ -260,17 +260,22 @@ target_sources(${PROJECT_NAME}
 # If macos get graphix headers from homebrew
 if(APPLE)
     include_directories(SYSTEM /opt/homebrew/include)
-    # link to libcgraph.dylib and libgvc.dylib
-    # add linker search path to be the bundled location (source root/bin)
-    target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    # link to libcgraph.dylib and libgvc.dylib from homebrew
+    target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/lib)
+    # Link /opt/homebrew/Cellar/graphviz/<latest>/lib/graphviz/
+    # Get version number from /opt/homebrew/Cellar/graphviz using list dir
+    file(GLOB GRAPHVIZ_VERSION "/opt/homebrew/Cellar/graphviz/*")
+    target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/Cellar/graphviz/${GRAPHVIZ_VERSION}/lib/graphviz)
+    target_link_directories(${PROJECT_NAME} PRIVATE /opt/homebrew/lib)
+
   else()
     include_directories(SYSTEM "C:\\Program Files\\Graphviz\\include")
     # Add linker search path. Use tagret_link_directories to avoid adding to the system path
     target_link_directories(${PROJECT_NAME} PRIVATE "C:\\Program Files\\Graphviz\\lib")
     # tell this to link to the graphviz libraries
-    # copy binaries on build - cgraph and gvc
-    file(COPY "C:/Program Files/Graphviz/bin/cgraph.dll" DESTINATION ${CMAKE_BINARY_DIR})
-    file(COPY "C:/Program Files/Graphviz/bin/gvc.dll" DESTINATION ${CMAKE_BINARY_DIR})
+    # copy binaries on build , all dlls in folder
+    file(GLOB GRAPHVIZ_DLLS "C:\\Program Files\\Graphviz\\bin\\*.dll")
+    file(COPY ${GRAPHVIZ_DLLS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 include(config/translations.cmake)
@@ -304,6 +309,7 @@ target_link_libraries(${PROJECT_NAME}
     ${PLATFORM_LIBS}
     cgraph
     gvc
+    gvplugin_dot_layout
 )
 
 include(config/install.cmake)
