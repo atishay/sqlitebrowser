@@ -778,7 +778,7 @@ namespace  sqlb { namespace parser  {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 120, ///< Number of tokens.
+        YYNTOKENS = 122, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -900,63 +900,65 @@ namespace  sqlb { namespace parser  {
         S_QUOTEDLITERAL = 117,                   // "quoted literal"
         S_BLOBLITERAL = 118,                     // "blob literal"
         S_BINDPARAMETER = 119,                   // "bind parameter"
-        S_YYACCEPT = 120,                        // $accept
-        S_sql = 121,                             // sql
-        S_statement = 122,                       // statement
-        S_literalvalue = 123,                    // literalvalue
-        S_id = 124,                              // id
-        S_allowed_keywords_as_identifier = 125,  // allowed_keywords_as_identifier
-        S_tableid = 126,                         // tableid
-        S_columnid = 127,                        // columnid
-        S_signednumber = 128,                    // signednumber
-        S_signednumber_or_numeric = 129,         // signednumber_or_numeric
-        S_typename_namelist = 130,               // typename_namelist
-        S_type_name = 131,                       // type_name
-        S_unary_expr = 132,                      // unary_expr
-        S_binary_expr = 133,                     // binary_expr
-        S_like_expr = 134,                       // like_expr
-        S_exprlist_expr = 135,                   // exprlist_expr
-        S_function_expr = 136,                   // function_expr
-        S_isnull_expr = 137,                     // isnull_expr
-        S_between_expr = 138,                    // between_expr
-        S_in_expr = 139,                         // in_expr
-        S_whenthenlist_expr = 140,               // whenthenlist_expr
-        S_case_expr = 141,                       // case_expr
-        S_raise_expr = 142,                      // raise_expr
-        S_expr = 143,                            // expr
-        S_select_stmt = 144,                     // select_stmt
-        S_optional_if_not_exists = 145,          // optional_if_not_exists
-        S_optional_sort_order = 146,             // optional_sort_order
-        S_optional_unique = 147,                 // optional_unique
-        S_optional_where = 148,                  // optional_where
-        S_tableid_with_uninteresting_schema = 149, // tableid_with_uninteresting_schema
-        S_indexed_column = 150,                  // indexed_column
-        S_indexed_column_list = 151,             // indexed_column_list
-        S_createindex_stmt = 152,                // createindex_stmt
-        S_optional_exprlist_with_paren = 153,    // optional_exprlist_with_paren
-        S_createvirtualtable_stmt = 154,         // createvirtualtable_stmt
-        S_optional_temporary = 155,              // optional_temporary
-        S_tableoption = 156,                     // tableoption
-        S_tableoptions_list = 157,               // tableoptions_list
-        S_optional_tableoptions_list = 158,      // optional_tableoptions_list
-        S_optional_conflictclause = 159,         // optional_conflictclause
-        S_optional_typename = 160,               // optional_typename
-        S_optional_storage_identifier = 161,     // optional_storage_identifier
-        S_optional_always_generated = 162,       // optional_always_generated
-        S_columnconstraint = 163,                // columnconstraint
-        S_columnconstraint_list = 164,           // columnconstraint_list
-        S_columndef = 165,                       // columndef
-        S_columndef_list = 166,                  // columndef_list
-        S_optional_constraintname = 167,         // optional_constraintname
-        S_columnid_list = 168,                   // columnid_list
-        S_optional_columnid_with_paren_list = 169, // optional_columnid_with_paren_list
-        S_fk_clause_part = 170,                  // fk_clause_part
-        S_fk_clause_part_list = 171,             // fk_clause_part_list
-        S_optional_fk_clause = 172,              // optional_fk_clause
-        S_tableconstraint = 173,                 // tableconstraint
-        S_tableconstraint_list = 174,            // tableconstraint_list
-        S_optional_tableconstraint_list = 175,   // optional_tableconstraint_list
-        S_createtable_stmt = 176                 // createtable_stmt
+        S_120_ = 120,                            // "->"
+        S_121_ = 121,                            // "->>"
+        S_YYACCEPT = 122,                        // $accept
+        S_sql = 123,                             // sql
+        S_statement = 124,                       // statement
+        S_literalvalue = 125,                    // literalvalue
+        S_id = 126,                              // id
+        S_allowed_keywords_as_identifier = 127,  // allowed_keywords_as_identifier
+        S_tableid = 128,                         // tableid
+        S_columnid = 129,                        // columnid
+        S_signednumber = 130,                    // signednumber
+        S_signednumber_or_numeric = 131,         // signednumber_or_numeric
+        S_typename_namelist = 132,               // typename_namelist
+        S_type_name = 133,                       // type_name
+        S_unary_expr = 134,                      // unary_expr
+        S_binary_expr = 135,                     // binary_expr
+        S_like_expr = 136,                       // like_expr
+        S_exprlist_expr = 137,                   // exprlist_expr
+        S_function_expr = 138,                   // function_expr
+        S_isnull_expr = 139,                     // isnull_expr
+        S_between_expr = 140,                    // between_expr
+        S_in_expr = 141,                         // in_expr
+        S_whenthenlist_expr = 142,               // whenthenlist_expr
+        S_case_expr = 143,                       // case_expr
+        S_raise_expr = 144,                      // raise_expr
+        S_expr = 145,                            // expr
+        S_select_stmt = 146,                     // select_stmt
+        S_optional_if_not_exists = 147,          // optional_if_not_exists
+        S_optional_sort_order = 148,             // optional_sort_order
+        S_optional_unique = 149,                 // optional_unique
+        S_optional_where = 150,                  // optional_where
+        S_tableid_with_uninteresting_schema = 151, // tableid_with_uninteresting_schema
+        S_indexed_column = 152,                  // indexed_column
+        S_indexed_column_list = 153,             // indexed_column_list
+        S_createindex_stmt = 154,                // createindex_stmt
+        S_optional_exprlist_with_paren = 155,    // optional_exprlist_with_paren
+        S_createvirtualtable_stmt = 156,         // createvirtualtable_stmt
+        S_optional_temporary = 157,              // optional_temporary
+        S_tableoption = 158,                     // tableoption
+        S_tableoptions_list = 159,               // tableoptions_list
+        S_optional_tableoptions_list = 160,      // optional_tableoptions_list
+        S_optional_conflictclause = 161,         // optional_conflictclause
+        S_optional_typename = 162,               // optional_typename
+        S_optional_storage_identifier = 163,     // optional_storage_identifier
+        S_optional_always_generated = 164,       // optional_always_generated
+        S_columnconstraint = 165,                // columnconstraint
+        S_columnconstraint_list = 166,           // columnconstraint_list
+        S_columndef = 167,                       // columndef
+        S_columndef_list = 168,                  // columndef_list
+        S_optional_constraintname = 169,         // optional_constraintname
+        S_columnid_list = 170,                   // columnid_list
+        S_optional_columnid_with_paren_list = 171, // optional_columnid_with_paren_list
+        S_fk_clause_part = 172,                  // fk_clause_part
+        S_fk_clause_part_list = 173,             // fk_clause_part_list
+        S_optional_fk_clause = 174,              // optional_fk_clause
+        S_tableconstraint = 175,                 // tableconstraint
+        S_tableconstraint_list = 176,            // tableconstraint_list
+        S_optional_tableconstraint_list = 177,   // optional_tableconstraint_list
+        S_createtable_stmt = 178                 // createtable_stmt
       };
     };
 
@@ -1672,7 +1674,8 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::TOK_EOF
-                   || (token::TOK_YYerror <= tok && tok <= token::TOK_BITWISERIGHT));
+                   || (token::TOK_YYerror <= tok && tok <= token::TOK_BITWISERIGHT)
+                   || (375 <= tok && tok <= 376));
 #endif
       }
 #if 201103L <= YY_CPLUSPLUS
@@ -3865,7 +3868,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 3719,     ///< Last index in yytable_.
+      yylast_ = 3818,     ///< Last index in yytable_.
       yynnts_ = 57,  ///< Number of nonterminal symbols.
       yyfinal_ = 13 ///< Termination state number.
     };
@@ -3924,10 +3927,10 @@ switch (yykind)
       85,    86,    87,    88,    89,    90,    91,    92,    93,    94,
       95,    96,    97,    98,    99,   100,   101,   102,   103,   104,
      105,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119
+     115,   116,   117,   118,   119,   120,   121
     };
     // Last valid token kind.
-    const int code_max = 374;
+    const int code_max = 376;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -4410,7 +4413,7 @@ switch (yykind)
 
 #line 10 "sqlite3_parser.yy"
 } } //  sqlb::parser 
-#line 4414 "sqlite3_parser.hpp"
+#line 4417 "sqlite3_parser.hpp"
 
 
 
