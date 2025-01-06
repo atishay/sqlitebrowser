@@ -261,7 +261,6 @@ target_sources(${PROJECT_NAME}
 if(APPLE)
     include_directories(SYSTEM /opt/homebrew/include)
     # link to libcgraph.dylib and libgvc.dylib
-    target_link_libraries(${PROJECT_NAME} cgraph gvc)
     # add linker search path to be the bundled location (source root/bin)
     link_directories(${CMAKE_CURRENT_SOURCE_DIR}/bin)
   else()
@@ -269,7 +268,6 @@ if(APPLE)
     # Add linker search path
     link_directories("C:\Program Files\Graphviz\lib")
     # tell this to link to the graphviz libraries
-    target_link_libraries(${PROJECT_NAME} cgraph gvc)
     # copy binaries on build - cgraph and gvc
     file(COPY "C:/Program Files/Graphviz/bin/cgraph.dll" DESTINATION ${CMAKE_BINARY_DIR})
     file(COPY "C:/Program Files/Graphviz/bin/gvc.dll" DESTINATION ${CMAKE_BINARY_DIR})
@@ -304,6 +302,8 @@ target_link_libraries(${PROJECT_NAME}
     QHexEdit::QHexEdit QCustomPlot::QCustomPlot QScintilla::QScintilla
     ${LIBSQLITE_NAME}
     ${PLATFORM_LIBS}
+    cgraph
+    gvc
 )
 
 include(config/install.cmake)
