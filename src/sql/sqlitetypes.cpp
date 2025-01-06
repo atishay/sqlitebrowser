@@ -410,6 +410,19 @@ std::string Table::sql(const std::string& schema, bool ifNotExists) const
     return sql + ";";
 }
 
+void Table::addConstraint(const IndexedColumnVector &columns,
+                   std::shared_ptr<PrimaryKeyConstraint> constraint) {
+  m_indexConstraints.insert(std::make_pair(columns, constraint));
+}
+void Table::addConstraint(const IndexedColumnVector &columns,
+                          std::shared_ptr<UniqueConstraint> constraint) {
+  m_indexConstraints.insert(std::make_pair(columns, constraint));
+}
+void Table::addConstraint(const StringVector &columns,
+                          std::shared_ptr<ForeignKeyClause> constraint) {
+  m_foreignKeys.insert(std::make_pair(columns, constraint));
+}
+
 void Table::addConstraint(const StringVector& columns, std::shared_ptr<PrimaryKeyConstraint> constraint)
 {
     IndexedColumnVector c;

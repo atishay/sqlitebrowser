@@ -385,9 +385,9 @@ public:
     const std::string& virtualUsing() const { return m_virtual; }
     bool isVirtual() const { return !m_virtual.empty(); }
 
-    void addConstraint(const IndexedColumnVector& columns, std::shared_ptr<PrimaryKeyConstraint> constraint) { m_indexConstraints.insert(std::make_pair(columns, constraint)); }
-    void addConstraint(const IndexedColumnVector& columns, std::shared_ptr<UniqueConstraint> constraint) { m_indexConstraints.insert(std::make_pair(columns, constraint)); }
-    void addConstraint(const StringVector& columns, std::shared_ptr<ForeignKeyClause> constraint) { m_foreignKeys.insert(std::make_pair(columns, constraint)); }
+    void addConstraint(const IndexedColumnVector& columns, std::shared_ptr<PrimaryKeyConstraint> constraint);
+    void addConstraint(const IndexedColumnVector& columns, std::shared_ptr<UniqueConstraint> constraint);
+    void addConstraint(const StringVector& columns, std::shared_ptr<ForeignKeyClause> constraint);
     void addConstraint(std::shared_ptr<CheckConstraint> constraint) { m_checkConstraints.push_back(constraint); }
     void removeConstraint(std::shared_ptr<UniqueConstraint> constraint);
     void removeConstraint(std::shared_ptr<ForeignKeyClause> constraint);
