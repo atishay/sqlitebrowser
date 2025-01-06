@@ -311,7 +311,7 @@ uint32_t decodeBigEndianInt(const QByteArray& data, int& offset, int size) {
 // Decode functions for different JSONB types
 QByteArray decodeString(const QByteArray& data, int& offset, uint32_t payloadSize) {
     QByteArray result = data.mid(offset, payloadSize);
-    result.replace("\"", "\\\"");  // Escape quotes
+    // result.replace("\"", "\\\"");  // Escape quotes
     offset += payloadSize;
     return result;
 }
