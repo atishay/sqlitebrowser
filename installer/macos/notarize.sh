@@ -70,13 +70,6 @@ for TARGET in $(find build -name "DB Browser for SQL*.app" | sed -e 's/ /_/g'); 
     fi
 done
 
-# Copy the graph dylib to the app bundle
-for TARGET in $(find build -name "DB Browser for SQL*.app" | sed -e 's/ /_/g'); do
-    TARGET=$(echo $TARGET | sed -e 's/_/ /g')
-    cp bin/libgvc.dylib "$TARGET/Contents/Frameworks/"
-    cp bin/libcgraph.dylib "$TARGET/Contents/Frameworks/"
-done
-
 # Sign the manually added extensions
 # for TARGET in $(find build -name "DB Browser for SQL*.app" | sed -e 's/ /_/g'); do
 #     TARGET=$(echo $TARGET | sed -e 's/_/ /g')
