@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019]
+        os: [windows-2025]
         arch: ["Win64"]
         # Disable windows 32 bit
         # arch: ["Win32", "Win64"]
@@ -52,7 +52,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          arch: ${{ matrix.arch == 'Win32' && 'win32_msvc2019' || matrix.arch == 'Win64' && 'win64_msvc2019_64'}}
+          arch: ${{ matrix.arch == 'Win32' && 'win32_msvc2022' || matrix.arch == 'Win64' && 'win64_msvc2022_64'}}
           cache: true
           cache-key-prefix: "cache"
           version: ${{ env.QT_VERSION }}
