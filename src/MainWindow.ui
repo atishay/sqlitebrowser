@@ -1112,7 +1112,20 @@ You can drag SQL statements from an object row and drop them into other applicat
         </item>
        </layout>
       </widget>
-     </widget>
+      <widget class="QWidget" name="diagram">
+       <property name="accessibleName">
+        <string extracomment="This has to be equal to the tab title in all the main tabs">Diagram</string>
+       </property>
+       <attribute name="title">
+        <string>Diagram</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+          <widget class="ImageViewer" name="diagramView" />
+        </item>
+       </layout>
+      </widget>
+    </widget>
     </item>
    </layout>
   </widget>

@@ -1,32 +1,33 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-#include "Application.h"
-#include "EditIndexDialog.h"
 #include "AboutDialog.h"
-#include "EditTableDialog.h"
-#include "ImportCsvDialog.h"
-#include "ExportDataDialog.h"
-#include "Settings.h"
-#include "PreferencesDialog.h"
-#include "EditDialog.h"
-#include "sqlitetablemodel.h"
-#include "SqlExecutionArea.h"
-#include "VacuumDialog.h"
-#include "DbStructureModel.h"
-#include "version.h"
-#include "sqlite.h"
+#include "Application.h"
 #include "CipherDialog.h"
-#include "ExportSqlDialog.h"
-#include "SqlUiLexer.h"
-#include "FileDialog.h"
-#include "RemoteDock.h"
-#include "FindReplaceDialog.h"
-#include "RunSql.h"
-#include "ExtendedTableWidget.h"
 #include "Data.h"
+#include "DbStructureModel.h"
+#include "DiagramCreator.h"
+#include "EditDialog.h"
+#include "EditIndexDialog.h"
+#include "EditTableDialog.h"
+#include "ExportDataDialog.h"
+#include "ExportSqlDialog.h"
+#include "ExtendedTableWidget.h"
+#include "FileDialog.h"
+#include "FindReplaceDialog.h"
+#include "ImportCsvDialog.h"
+#include "PreferencesDialog.h"
+#include "RemoteDock.h"
+#include "RunSql.h"
+#include "Settings.h"
+#include "SqlExecutionArea.h"
+#include "SqlUiLexer.h"
 #include "TableBrowser.h"
 #include "TableBrowserDock.h"
+#include "VacuumDialog.h"
+#include "sqlite.h"
+#include "sqlitetablemodel.h"
+#include "version.h"
 
 #include <chrono>
 #include <QFile>
@@ -160,6 +161,31 @@ void MainWindow::init()
 
     // Set up edit dock
     editDock->setReadOnly(true);
+
+    // Set up diagram tab
+    connect(&db, &DBBrowserDB::structureUpdated, this, [this]() {
+        std::string data = "";
+        // Create the dot for the DB.
+        auto resp = db.executeSQL(dotConvert, false, false, [&data](int c, std::vector<QByteArray> vec, std::vector<QByteArray> rows) {
+            for (const auto& byteArray : vec) {
+                data += byteArray.toStdString() + "\n";
+            }
+            return false;
+        });
+
+        if (resp) {
+            auto svg = convertDotToSvg(data);
+            QByteArray byteArray(svg.c_str(), static_cast<int>(svg.size()));
+            // Now we can convert to and render as image
+            QImage img;
+
+            if (img.loadFromData(byteArray))
+                ui->diagramView->setImage(img);
+            else
+                // Clear any image from the image viewing widget
+                ui->diagramView->resetImage();
+        }
+    }, Qt::QueuedConnection);
 
     // Restore window geometry
     restoreGeometry(Settings::getValue("MainWindow", "geometry").toByteArray());
@@ -331,7 +357,8 @@ void MainWindow::init()
     connect(ui->mainTab, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
 
     // Add entries for toggling the visibility of main tabs
-    for (QWidget* widget : {ui->structure, ui->browser, ui->pragmas, ui->query}) {
+    for (QWidget *widget : {ui->structure, ui->browser, ui->pragmas, ui->query, ui->diagram})
+    {
         QAction* action = ui->viewMenu->addAction(QIcon(":/icons/open_sql"), widget->accessibleName());
         action->setObjectName(widget->accessibleName());
         action->setCheckable(true);
@@ -3769,7 +3796,7 @@ void MainWindow::restoreOpenTabs(QString tabs)
         ui->mainTab->setUpdatesEnabled(false);
         ui->mainTab->clear();
         for (const auto& objectName : tabList) {
-            for (QWidget* widget : {ui->structure, ui->browser, ui->pragmas, ui->query})
+            for (QWidget *widget : {ui->structure, ui->browser, ui->pragmas, ui->query, ui->diagram})
                 if (widget->objectName() == objectName) {
                     ui->mainTab->addTab(widget, widget->accessibleName());
                     break;

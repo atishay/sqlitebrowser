@@ -224,6 +224,8 @@ target_sources(${PROJECT_NAME}
     src/RemoteCommitsModel.cpp
     src/RemoteNetwork.cpp
     src/TableBrowserDock.cpp
+    # ER Diagram support
+    src/DiagramCreator.h
 )
 
 source_group("Qt UI" "src/.*\.ui$")
