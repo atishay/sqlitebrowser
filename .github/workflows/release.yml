@@ -18,12 +18,12 @@ jobs:
       contents: write
       deployments: write
     steps:
-      - name: Delete existing tag and release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          delete_release: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ env.tag_name }}
+      # - name: Delete existing tag and release
+      #   uses: dev-drprasad/delete-tag-and-release@v1.1
+      #   with:
+      #     delete_release: true
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     tag_name: ${{ env.tag_name }}
 
       - run: mkdir target
 
@@ -32,8 +32,8 @@ jobs:
         with:
           path: target
 
-      - name: Remove unsigned Windows build
-        run: rm -rfv target/*unsigned*
+      # - name: Remove unsigned Windows build
+      #   run: rm -rfv target/*unsigned*
 
       - run: find target -type f -exec mv -v {} target \;
 
