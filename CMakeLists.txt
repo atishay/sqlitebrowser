@@ -262,11 +262,11 @@ if(APPLE)
     include_directories(SYSTEM /opt/homebrew/include)
     # link to libcgraph.dylib and libgvc.dylib
     # add linker search path to be the bundled location (source root/bin)
-    link_directories(${CMAKE_CURRENT_SOURCE_DIR}/bin)
+    target_link_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/bin)
   else()
     include_directories(SYSTEM "C:\\Program Files\\Graphviz\\include")
-    # Add linker search path
-    link_directories("C:\\Program Files\\Graphviz\\lib")
+    # Add linker search path. Use tagret_link_directories to avoid adding to the system path
+    target_link_directories(${PROJECT_NAME} PRIVATE "C:\\Program Files\\Graphviz\\lib")
     # tell this to link to the graphviz libraries
     # copy binaries on build - cgraph and gvc
     file(COPY "C:/Program Files/Graphviz/bin/cgraph.dll" DESTINATION ${CMAKE_BINARY_DIR})
