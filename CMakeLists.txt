@@ -257,6 +257,13 @@ target_sources(${PROJECT_NAME}
     src/ImageViewer.ui
 )
 
+# If macos get graphix headers from homebrew
+if(APPLE)
+    include_directories(SYSTEM /opt/homebrew/include)
+  else()
+    include_directories(SYSTEM /usr/include)
+endif()
+
 include(config/translations.cmake)
 
 source_group("Qt Resources" "src/.*\.qrc$")
