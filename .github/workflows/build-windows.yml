@@ -37,6 +37,9 @@ jobs:
       - name: Install Ninja (Windows)
         run: choco install -y --no-progress ninja
 
+      - name: Install GraphViz (Windows)
+        run: choco install -y --no-progress graphviz
+
       # When building SQLCipher, if we specify a path to OpenSSL and
       # there are spaces in the path, an error will occur, so to
       # avoid this, create the symlink.

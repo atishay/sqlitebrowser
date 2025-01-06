@@ -35,7 +35,7 @@ jobs:
           brew update
           brew tap sqlitebrowser/tap
           brew unlink openssl@3
-          brew install sqlb-openssl@3
+          brew install sqlb-openssl@3 graphviz
           brew install sqlb-qt@5 sqlb-sqlcipher sqlb-sqlite ninja
           npm install -g appdmg
 
