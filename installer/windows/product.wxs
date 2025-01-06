@@ -88,6 +88,9 @@
                         <Component><File Source="..\..\LICENSE" /></Component>
                         <Component><File Source="..\..\LICENSE-PLUGINS" /></Component>
                     </Directory>
+                    <Component><File Source="C:\Program Files\Graphviz\bin\cgraph.dll" /></Component>
+                    <Component><File Source="C:\Program Files\Graphviz\bin\gvc.dll" /></Component>
+                    <Component><File Source="$(var.QtPath)\bin\Qt5Concurrent.dll" /></Component>
                     <Component><File Source="$(var.QtPath)\bin\Qt5Concurrent.dll" /></Component>
                     <Component><File Source="$(var.QtPath)\bin\Qt5Core.dll" /></Component>
                     <Component><File Source="$(var.QtPath)\bin\Qt5Gui.dll" /></Component>
@@ -183,6 +186,9 @@
             <ComponentRef Id="Qt5Widgets.dll" />
             <ComponentRef Id="Qt5Xml.dll" />
             <ComponentRef Id="Qt5Svg.dll" />
+            <!-- CGraph -->
+            <ComponentRef Id="gvc.dll" />
+            <ComponentRef Id="cgraph.dll" />
             <!-- OpenSSL -->
             <ComponentRef Id="libcrypto.dll" />
             <ComponentRef Id="libssl.dll" />
