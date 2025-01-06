@@ -264,9 +264,9 @@ if(APPLE)
     # add linker search path to be the bundled location (source root/bin)
     link_directories(${CMAKE_CURRENT_SOURCE_DIR}/bin)
   else()
-    include_directories(SYSTEM "C:\Program Files\Graphviz\include")
+    include_directories(SYSTEM "C:\\Program Files\\Graphviz\\include")
     # Add linker search path
-    link_directories("C:\Program Files\Graphviz\lib")
+    link_directories("C:\\Program Files\\Graphviz\\lib")
     # tell this to link to the graphviz libraries
     # copy binaries on build - cgraph and gvc
     file(COPY "C:/Program Files/Graphviz/bin/cgraph.dll" DESTINATION ${CMAKE_BINARY_DIR})
