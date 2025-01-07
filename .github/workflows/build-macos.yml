@@ -35,9 +35,15 @@ jobs:
           brew update
           brew tap sqlitebrowser/tap
           brew unlink openssl@3
-          brew install sqlb-openssl@3 graphviz
+          brew install sqlb-openssl@3
           brew install sqlb-qt@5 sqlb-sqlcipher sqlb-sqlite ninja
           npm install -g appdmg
+
+      - name: Setup macports
+        uses: melusina-org/setup-macports@v1
+
+      - name: Install GraphViz
+        run: port install graphviz +universal
 
       - name: Configure build
         run: |

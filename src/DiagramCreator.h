@@ -141,6 +141,7 @@ SELECT '
 
 )";
 
+extern "C" {
 
 extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
 
@@ -150,6 +151,7 @@ lt_symlist_t lt_preloaded_symbols[] =
     { 0, 0}
 };
 
+}
 // Function to convert DOT string to SVG string
 inline std::string convertDotToSvg(const std::string& dot) {
     GVC_t *gvc = gvContext();
