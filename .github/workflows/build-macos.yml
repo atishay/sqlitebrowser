@@ -43,7 +43,10 @@ jobs:
         uses: melusina-org/setup-macports@v1
 
       - name: Install GraphViz
-        run: port install graphviz +universal
+        continue-on-error: true
+        run: |
+          sudo mkdir -p /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_macports_release_tarballs_ports_multimedia_libde265/libde265/
+          port install graphviz +universal 2>&1 | tee /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_macports_release_tarballs_ports_multimedia_libde265/libde265/main.log
 
       - name: Configure build
         run: |
